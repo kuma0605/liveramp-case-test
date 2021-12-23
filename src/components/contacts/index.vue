@@ -3,7 +3,12 @@
         <div class="ct_contacts" ref="contactContainer" >
             <div class="search_input">
                 <img class="ct_icon" src="@/assets/search.png" alt="">
-                <input type="text" placeholder="Search..." v-model="searchQuery" > 
+                <input type="text" placeholder="Search..." v-model.trim="searchQuery" @focus="focusEvent" @blur="blurEvent"> 
+                <ul class="history_ct" v-show="showHistory">
+                    <li v-for="(item,index) in historyList" :key="index">
+                        {{item}}
+                    </li>
+                </ul>
             </div>
             <ul class="ct_list" ref="contactList">
                 <template v-for="(letter,index) in validAlphabet" >
@@ -56,7 +61,9 @@
                 validAlphabet:[],
                 chosen:undefined,
                 letterChosen:undefined,
-                indexChosen:undefined
+                indexChosen:undefined,
+                historyList:[],
+                showHistory:false
             }
         },
         watch: {
@@ -65,7 +72,8 @@
             }
         },
         created(){
-            this.handleSearch()
+            this.handleSearch();
+            this.getHistory()
         },
         methods:{
             doJump(index){
@@ -85,7 +93,28 @@
                 this.handleSearch()
             }, 500),
             recordSearch(){
-
+                if(this.searchQuery){
+                    let searchQuery = this.searchQuery;
+                    let timeStamp = new Date().getTime()
+                    let historyQuery = localStorage.getItem("searchQuery");
+                    let queryArr = [];
+                    let validQueryArr = [];
+                    if(historyQuery){
+                        queryArr=historyQuery.split(",");
+                        let nowtime = new Date().getTime();
+                        queryArr.forEach((query)=>{
+                            let arr = query.split("&time=");
+                            let timeStamp = arr[1]-0;
+                            if(nowtime-timeStamp<24*60*60*1000){
+                                validQueryArr.push(query)
+                            }
+                        })
+                    }
+                    
+                    validQueryArr.push(searchQuery+"&time="+timeStamp);
+                    localStorage.setItem("searchQuery", validQueryArr.join(","))
+                }
+                
             },
             handleSearch(){
                 let res = {};
@@ -101,7 +130,7 @@
                             let matchList=list.filter((item)=>{
                                 //名字包含搜索内容
                                 let name = item.name.toLowerCase();
-                                return name.indexOf(this.searchQuery)!=-1
+                                return name.indexOf(searchQuery)!=-1
                             })
 
                             if(matchList.length){
@@ -126,7 +155,15 @@
             },
             doup(){
                 if(this.indexChosen===0){
-                    
+                    let lastLetterIndex = this.validAlphabet.indexOf(this.letterChosen)-1
+                    if(lastLetterIndex!=-1){
+                        let letterChosen = this.validAlphabet[lastLetterIndex];
+                        let indexChosen = this.showData[letterChosen].length-1;
+                        let chosen = this.showData[letterChosen][indexChosen];
+                        this.indexChosen=indexChosen;
+                        this.letterChosen = letterChosen;
+                        this.chosen = chosen;
+                    }
                 }else{
                     let indexChosen=this.indexChosen-1
                     this.indexChosen = indexChosen;
@@ -136,12 +173,51 @@
             dodown(){
                 let lastIndex = this.showData[this.letterChosen].length-1
                 if(this.indexChosen===lastIndex){
-                    
+                    let nextLetterIndex = this.validAlphabet.indexOf(this.letterChosen) + 1;
+                    if(nextLetterIndex!=this.validAlphabet.length){
+                        let letterChosen = this.validAlphabet[nextLetterIndex];
+                        let indexChosen = this.showData[letterChosen].length-1;
+                        let chosen = this.showData[letterChosen][indexChosen];
+                        this.indexChosen=indexChosen;
+                        this.letterChosen = letterChosen;
+                        this.chosen = chosen;
+                    }
                 }else{
                     let indexChosen=this.indexChosen+1
                     this.indexChosen = indexChosen;
                     this.chosen= this.showData[this.letterChosen][indexChosen]
                 }
+            },
+            focusEvent(){
+                this.showHistory=true;
+            },
+            blurEvent(){
+                this.showHistory=false;
+            },
+            getHistory(){
+                let historyQuery = localStorage.getItem("searchQuery");
+                if(!historyQuery){ //null
+                    return;
+                }
+                let queryArr=historyQuery.split(",");
+                let validHistory=[];
+                let validQueryArr=[];
+                let nowtime = new Date().getTime();
+                queryArr.forEach((query)=>{
+                    let arr = query.split("&time=");
+                    let timeStamp = arr[1]-0;
+                    if(nowtime-timeStamp<24*60*60*1000){
+                        validHistory.push(arr[0])
+                        validQueryArr.push(query)
+                    }
+                })
+                this.historyList=validHistory;
+                if(validQueryArr.length){
+                    localStorage.setItem("searchQuery", validQueryArr.join(","))
+                }else{
+                    localStorage.removeItem("searchQuery")
+                }
+                
             }
         }
     }
