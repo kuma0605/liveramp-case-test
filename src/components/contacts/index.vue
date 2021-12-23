@@ -6,7 +6,7 @@
             <input type="text" placeholder="Search..." v-model="searchStr">
         </div>
         <ul class="ct_list">
-            <template v-for="(letter,index) in alphabet" >
+            <template v-for="(letter,index) in validAlphabet" >
                 <li    :key="index">
                     <div class="ct_category">
                         {{letter}}
@@ -23,7 +23,7 @@
     <div class="right_bar">
             <img class="icon_ct" src="@/assets/up.png" alt="">
             <ul class="letter_bar">
-                <li v-for="(letter,index) in alphabet" :key="index">
+                <li v-for="(letter,index) in validAlphabet" :key="index">
                     {{letter}}
                 </li>
             </ul>
@@ -65,6 +65,13 @@
                     
                 })
                 return res;
+            },
+            validAlphabet(){
+                return alphabet.filter((letter)=>{
+                    let list = this.mapData[letter];
+                    return list&&list.length
+                    
+                })
             }
         }
     }
