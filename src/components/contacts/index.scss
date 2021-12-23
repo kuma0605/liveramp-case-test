@@ -18,16 +18,21 @@
         left: 375px;
         top:50%;
         transform: translateY(-50%);
-        height: 183px;
+        
         .letter_bar{
-            height: 153px;
+            max-height: 153px;
             overflow-y: scroll;
+            cursor: pointer;
             &::-webkit-scrollbar {
                 display: none;
             }
             &>li:not(:last-child){
                 margin-bottom: 3px;
             }
+            /* &>li:hover{
+                color:white;
+                background:#2196f3;
+            } */
             
         }
         .icon_ct{
@@ -58,7 +63,7 @@
     }
     
     .ct_list{
-        
+        cursor: pointer;
         &>li{
             .ct_category{
                 color: gray;
@@ -68,6 +73,10 @@
             .ct_content{
                 &>li{
                     border-bottom: 1px solid #ececec;
+                }
+                &>li:hover{
+                    color:white;
+                    background:#2196f3;
                 }
             }
         }

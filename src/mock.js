@@ -60,7 +60,38 @@ let contactMap={
         {
             name:"KKK"
         }
+    ],
+    "L":[
+        {
+            name:"loop"
+        }
+    ],
+    "M":[
+        {
+            name:"Man"
+        }
+    ],
+    "N":[
+        {
+            name:"None"
+        }
+    ],
+    "X":[
+        {
+            name:"xiaoming"
+        }
+    ],
+    "Y":[
+        {
+            name:"yaoming"
+        }
+    ],
+    "Z":[
+        {
+            name:"zhaoming"
+        }
     ]
+    
 }
 
 export default contactMap;
