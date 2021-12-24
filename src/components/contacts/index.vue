@@ -1,15 +1,22 @@
 <template>
-    <div class="ct_outer">
+    <div class="ct_outer" @click.self="selfEvent">
         <div class="ct_contacts" ref="contactContainer" >
-            <div class="search_input">
-                <img class="ct_icon" src="@/assets/search.png" alt="">
-                <input type="text" placeholder="Search..." v-model.trim="searchQuery" @focus="focusEvent" @blur="blurEvent"> 
-                <ul class="history_ct" v-show="showHistory">
-                    <li v-for="(item,index) in historyList" :key="index">
-                        {{item}}
-                    </li>
-                </ul>
+            <div class="search_input" >
+                <div class="input_container">
+                    <img class="ct_icon" src="@/assets/search.png" alt="">
+                    <input type="text" v-model.trim="searchQuery"  @focus="focusEvent" >
+                    <div class="ct_btn" @click="doQuery">search</div>
+                </div>
+                <div class="history_ct" v-show="showHistory&&validHistory.length">
+                    <ul >
+                        <li v-for="(item,index) in validHistory" :key="index" @click="clickEvent(item)">
+                            {{item}}
+                        </li>
+                    </ul>
+                    <div class="hideHistory" @click="showHistory=false">hide</div>
+                </div>
             </div>
+            <!-- <search-input v-model.trim="searchQuery" :history-list="historyList" :show-list="showList" @chooseHistory="chooseEvent"></search-input> -->
             <ul class="ct_list" ref="contactList">
                 <template v-for="(letter,index) in validAlphabet" >
                     <li class="parentLi" :key="index" >
@@ -38,7 +45,9 @@
     </div>
 </template>
 <script>
+    const validTime = 24*60*60*1000;
     import card from "../card"
+    // import searchInput from "../searchInput"
     var _ = require("lodash")
     const alphabet = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
     export default {
@@ -66,9 +75,17 @@
                 showHistory:false
             }
         },
-        watch: {
+        /* watch: {
             searchQuery: function () {
+                this.showHistory=true;
                 this.expensiveOperation()
+            }
+        }, */
+        computed:{
+            validHistory(){
+                return this.historyList.filter((name)=>{
+                    return name.indexOf(this.searchQuery)!=-1
+                })
             }
         },
         created(){
@@ -86,12 +103,12 @@
             },
             // debounce
             expensiveOperation: _.debounce(function () {
-                
+                this.showHistory=false;
                 //记录查询
                 this.recordSearch()
                 //处理查询
                 this.handleSearch()
-            }, 500),
+            }, 1000),
             recordSearch(){
                 if(this.searchQuery){
                     let searchQuery = this.searchQuery;
@@ -99,17 +116,21 @@
                     let historyQuery = localStorage.getItem("searchQuery");
                     let queryArr = [];
                     let validQueryArr = [];
+                    let validHistory=[];
                     if(historyQuery){
                         queryArr=historyQuery.split(",");
                         let nowtime = new Date().getTime();
                         queryArr.forEach((query)=>{
                             let arr = query.split("&time=");
                             let timeStamp = arr[1]-0;
-                            if(nowtime-timeStamp<24*60*60*1000){
+                            if((nowtime-timeStamp<validTime)&&(this.searchQuery!=arr[0])){
                                 validQueryArr.push(query)
+                                validHistory.push(arr[0])
                             }
                         })
                     }
+                    validHistory.push(searchQuery);
+                    this.historyList=validHistory.reverse();
                     
                     validQueryArr.push(searchQuery+"&time="+timeStamp);
                     localStorage.setItem("searchQuery", validQueryArr.join(","))
@@ -188,12 +209,7 @@
                     this.chosen= this.showData[this.letterChosen][indexChosen]
                 }
             },
-            focusEvent(){
-                this.showHistory=true;
-            },
-            blurEvent(){
-                this.showHistory=false;
-            },
+            
             getHistory(){
                 let historyQuery = localStorage.getItem("searchQuery");
                 if(!historyQuery){ //null
@@ -206,18 +222,43 @@
                 queryArr.forEach((query)=>{
                     let arr = query.split("&time=");
                     let timeStamp = arr[1]-0;
-                    if(nowtime-timeStamp<24*60*60*1000){
+                    if(nowtime-timeStamp<validTime){
                         validHistory.push(arr[0])
                         validQueryArr.push(query)
                     }
                 })
-                this.historyList=validHistory;
+                this.historyList=validHistory.reverse();
                 if(validQueryArr.length){
                     localStorage.setItem("searchQuery", validQueryArr.join(","))
                 }else{
                     localStorage.removeItem("searchQuery")
                 }
                 
+            },
+            /* chooseEvent(queryStr){
+                this.searchQuery= queryStr;
+            }, */
+            focusEvent(){
+                this.getHistory();
+                this.showHistory=true;
+            },
+            
+            clickEvent(queryStr){
+                this.showHistory=false;
+                this.searchQuery=queryStr;
+                
+            },
+            doQuery(){
+                
+
+                this.showHistory=false;
+                //记录查询
+                this.recordSearch()
+                //处理查询
+                this.handleSearch()
+            },
+            selfEvent(){
+                this.showHistory=false;
             }
         }
     }

@@ -33,6 +33,11 @@ export default {
 html,body{
   height: 100%;
 }
+ul,li{
+        margin:0;
+        padding:0;
+        list-style: none;
+    }
 #app {
   height: 100%;
   font-family: Avenir, Helvetica, Arial, sans-serif;
