@@ -84,7 +84,10 @@
         computed:{
             validHistory(){
                 return this.historyList.filter((name)=>{
-                    return name.indexOf(this.searchQuery)!=-1
+                    //优化匹配，不区分大小写
+                    name = name.toLowerCase();
+                    let searchQuery = this.searchQuery.toLowerCase();
+                    return name.indexOf(searchQuery)!=-1
                 })
             }
         },
@@ -94,14 +97,18 @@
         },
         methods:{
             doJump(index){
+                // offsetTop 是当前元素 距离 上级定位元素的距离，不会随着滚动而改变。
+                // 给 $refs.contactContainer 加上 定位，使其变为定位元素，优化代码
                 let liItems = this.$refs.contactList.querySelectorAll(".parentLi");
                 let liItem = liItems[index]
                 let offsetTop = liItem.offsetTop;
-                let ctOffsetTop = this.$refs.contactContainer.offsetTop;
+                // let ctOffsetTop = this.$refs.contactContainer.offsetTop;
+
+                // console.log(offsetTop, ctOffsetTop, liItem.offsetParent)
                 
-                this.$refs.contactContainer.scrollTop=offsetTop-ctOffsetTop;
+                this.$refs.contactContainer.scrollTop=offsetTop;
             },
-            // debounce
+            // debounce, unused now
             expensiveOperation: _.debounce(function () {
                 this.showHistory=false;
                 //记录查询
@@ -118,6 +125,11 @@
                     let validQueryArr = [];
                     let validHistory=[];
                     if(historyQuery){
+                        //这段代码可再优化
+                        //使用正则表达式剔除最新查找的过往查询
+                        //再进行时间筛选的优化，从头开始匹配，若匹配到时间在有效期内，则停止匹配，将该有效时间之前的数据，利用正则剔除
+                        //这样再加上最新的查询
+                        //得到新的查询历史，存入localStorage
                         queryArr=historyQuery.split(",");
                         let nowtime = new Date().getTime();
                         queryArr.forEach((query)=>{
@@ -128,6 +140,9 @@
                                 validHistory.push(arr[0])
                             }
                         })
+
+                        
+
                     }
                     validHistory.push(searchQuery);
                     this.historyList=validHistory.reverse();
@@ -219,6 +234,7 @@
                 let validHistory=[];
                 let validQueryArr=[];
                 let nowtime = new Date().getTime();
+                //筛选有效时间的代码可优化
                 queryArr.forEach((query)=>{
                     let arr = query.split("&time=");
                     let timeStamp = arr[1]-0;

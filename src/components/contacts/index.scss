@@ -37,7 +37,7 @@
     }
 }
 .ct_contacts{
-    
+    position: relative;
     height: 100%;
     overflow-y: scroll;
     &::-webkit-scrollbar {
