@@ -141,6 +141,10 @@
                             }
                         })
 
+                        // new way
+                        let pattern = this.searchQuery+"&time="+'\d+,';
+                        let handledHistory = historyQuery.replace(new RegExp(pattern,'gi'))
+                        
                         
 
                     }
