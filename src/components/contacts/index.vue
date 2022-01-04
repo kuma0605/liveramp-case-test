@@ -194,11 +194,17 @@
                 this.chosen=undefined;
             },
             doup(){
+                //如果当前字母队列选中索引为0
                 if(this.indexChosen===0){
+                    //得到上一个字母的索引
                     let lastLetterIndex = this.validAlphabet.indexOf(this.letterChosen)-1
+                    //上一个字母的索引是有效的
                     if(lastLetterIndex>-1){
+                        //得到上一个字母
                         let letterChosen = this.validAlphabet[lastLetterIndex];
+                        //上一个字母最后一个联系人索引
                         let indexChosen = this.showData[letterChosen].length-1;
+                        //拿到最后一个联系人的信息
                         let chosen = this.showData[letterChosen][indexChosen];
                         this.indexChosen=indexChosen;
                         this.letterChosen = letterChosen;
