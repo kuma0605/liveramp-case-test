@@ -143,7 +143,7 @@
 
                         // new way
                         let pattern = this.searchQuery+"&time="+'\d+,';
-                        let handledHistory = historyQuery.replace(new RegExp(pattern,'gi'))
+                        let handledHistory = historyQuery.replace(new RegExp(pattern,'g'))
                         
                         
 
@@ -196,7 +196,7 @@
             doup(){
                 if(this.indexChosen===0){
                     let lastLetterIndex = this.validAlphabet.indexOf(this.letterChosen)-1
-                    if(lastLetterIndex!=-1){
+                    if(lastLetterIndex>-1){
                         let letterChosen = this.validAlphabet[lastLetterIndex];
                         let indexChosen = this.showData[letterChosen].length-1;
                         let chosen = this.showData[letterChosen][indexChosen];
@@ -211,19 +211,25 @@
                 }
             },
             dodown(){
+                //当前字母队列中最后一个索引是什么
                 let lastIndex = this.showData[this.letterChosen].length-1
+                //如果当前弹出框就是当前字母队列中最后一个联系人的索引
                 if(this.indexChosen===lastIndex){
+                    //下一个字母 在 有效字母队列中的索引
                     let nextLetterIndex = this.validAlphabet.indexOf(this.letterChosen) + 1;
-                    if(nextLetterIndex!=this.validAlphabet.length){
+                    //下一个字母 没有超出有效队列的长度
+                    if(nextLetterIndex<this.validAlphabet.length){
+                        //得到下一个字母
                         let letterChosen = this.validAlphabet[nextLetterIndex];
-                        let indexChosen = this.showData[letterChosen].length-1;
+                        
+                        let indexChosen = 0;
                         let chosen = this.showData[letterChosen][indexChosen];
                         this.indexChosen=indexChosen;
                         this.letterChosen = letterChosen;
                         this.chosen = chosen;
                     }
                 }else{
-                    let indexChosen=this.indexChosen+1
+                    let indexChosen=this.indexChosen+1;
                     this.indexChosen = indexChosen;
                     this.chosen= this.showData[this.letterChosen][indexChosen]
                 }
